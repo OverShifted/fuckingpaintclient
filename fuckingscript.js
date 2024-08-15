@@ -6,8 +6,9 @@ var users = {};
 
 socket.on("message", function (msg) {
   let [x, y] = msg.pos;
-  if (msg.type == "add_brush_point") drawCircle(x, y, 10, "black");
-  else if (msg.type == "mouse_cursor") {
+  if (msg.type == "add_brush_point") {
+    drawCircle(x, y, 10, "#" + msg.user.color);
+  } else if (msg.type == "mouse_cursor") {
     drawCircle(x, y, 3, "red");
 
     let cursor = document.getElementById("cursor");
