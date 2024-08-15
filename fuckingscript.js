@@ -1,8 +1,24 @@
 const socket = io(fuckingpaint_server_address);
 
-socket.on("message", function (msg_json) {
-  let msg = JSON.parse(msg_json);
-  drawCircle(msg.pos[0], msg.pos[1], 10, "black");
+socket.emit("login", "{}");
+
+var users = {};
+
+socket.on("message", function (msg) {
+  let [x, y] = msg.pos;
+  if (msg.type == "add_brush_point") drawCircle(x, y, 10, "black");
+  else if (msg.type == "mouse_cursor") {
+    drawCircle(x, y, 3, "red");
+
+    let cursor = document.getElementById("cursor");
+    let radius = cursor.getBoundingClientRect().width / 2;
+    cursor.style.left = (x - radius).toString() + "px";
+    cursor.style.top = (y - radius).toString() + "px";
+  }
+});
+
+socket.on("login", function (msg_json) {
+  console.log(msg_json);
 });
 
 const canvas = document.getElementById("canvas");
@@ -16,14 +32,16 @@ function drawCircle(centerX, centerY, radius, color) {
 }
 
 canvas.addEventListener("mousemove", (e) => {
-  if (e.buttons) {
-    // drawCircle(e.offsetX, e.offsetY, 10, "black");
-    socket.send(
-      JSON.stringify({
-        pos: [e.offsetX, e.offsetY],
+  socket.send({
+    type: "mouse_cursor",
+    pos: [e.offsetX, e.offsetY],
+  });
 
-        final_point: false,
-      }),
-    );
+  if (e.buttons) {
+    socket.send({
+      type: "add_brush_point",
+      pos: [e.offsetX, e.offsetY],
+      final_point: false,
+    });
   }
 });
