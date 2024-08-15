@@ -3,11 +3,14 @@ const socket = io(fuckingpaint_server_address);
 socket.emit("login", "{}");
 
 var users = {};
+var prevPos = null;
+var prevButtons = 0;
 
 socket.on("message", function (msg) {
   let [x, y] = msg.pos;
   if (msg.type == "add_brush_point") {
-    drawCircle(x, y, 10, "#" + msg.user.color);
+    // drawCircle(x, y, 10, "#" + msg.user.color);
+    drawLine(msg.prevPos, msg.pos, 10, "#" + msg.user.color);
   } else if (msg.type == "mouse_cursor") {
     drawCircle(x, y, 3, "red");
 
@@ -32,17 +35,33 @@ function drawCircle(centerX, centerY, radius, color) {
   ctx.fill();
 }
 
+function drawLine(prevPos, pos, width, color) {
+  ctx.beginPath();
+  ctx.moveTo(prevPos[0], prevPos[1]);
+  ctx.lineTo(pos[0], pos[1]);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.stroke();
+}
+
 canvas.addEventListener("mousemove", (e) => {
+  let pos = [e.offsetX, e.offsetY];
+
   socket.send({
     type: "mouse_cursor",
-    pos: [e.offsetX, e.offsetY],
+    pos: pos,
   });
 
   if (e.buttons) {
     socket.send({
       type: "add_brush_point",
-      pos: [e.offsetX, e.offsetY],
+      pos: pos,
+      prevPos: prevButtons && prevPos ? prevPos : pos,
       final_point: false,
     });
+
+    prevPos = pos.slice();
   }
+
+  prevButtons = e.buttons;
 });
