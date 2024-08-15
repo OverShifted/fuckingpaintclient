@@ -1,0 +1,20 @@
+login:
+-> {
+    "name": String
+}
+
+<- {
+    "id_hash": String
+}
+
+add_brush_point:
+-> {
+    "x": number,
+    "y": number,
+
+    final_point: bool,
+}
+
+<- {
+    // Hamon
+}
