@@ -13,3 +13,7 @@ canvas {
     background-color: blue;
     position: absolute;
 }
+
+body {
+    background-color: black;
+}

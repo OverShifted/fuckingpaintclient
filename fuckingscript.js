@@ -47,11 +47,6 @@ function drawLine(prevPos, pos, width, color) {
 canvas.addEventListener("mousemove", (e) => {
   let pos = [e.offsetX, e.offsetY];
 
-  socket.send({
-    type: "mouse_cursor",
-    pos: pos,
-  });
-
   if (e.buttons) {
     socket.send({
       type: "add_brush_point",
@@ -61,6 +56,11 @@ canvas.addEventListener("mousemove", (e) => {
     });
 
     prevPos = pos.slice();
+  } else {
+    socket.send({
+      type: "mouse_cursor",
+      pos: pos,
+    });
   }
 
   prevButtons = e.buttons;
